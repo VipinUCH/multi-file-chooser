@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="item_offset">2dp</dimen>
+    <dimen name="five_dp">5dp</dimen>
+    <dimen name="file_name_text_size">14sp</dimen>
+    <dimen name="video_play_icon_size">50dp</dimen>
 </resources>

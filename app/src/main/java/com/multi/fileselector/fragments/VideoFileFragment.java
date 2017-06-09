@@ -88,7 +88,8 @@ public class VideoFileFragment extends BaseSelectionFragment {
      */
     @Override
     protected List<AppFiles> getFiles() {
-        final String[] columns = { MediaStore.Video.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Video.Media.DATA };
+        final String[] columns = { MediaStore.Video.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Video.Media.DATA, MediaStore.Video.Media.MIME_TYPE
+                                            , MediaStore.Video.Media.SIZE, MediaStore.Video.Media.DATE_MODIFIED };
         final String orderBy = MediaStore.Video.Media.DATE_MODIFIED;
 
         Cursor cursor = getContext(). getContentResolver().query(
@@ -101,11 +102,16 @@ public class VideoFileFragment extends BaseSelectionFragment {
         List<AppFiles> filesList = new ArrayList<AppFiles>();
 
         while(cursor.moveToNext()) {
-            AppFiles appFiles = new AppFiles(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media._ID)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)), MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
+            AppFiles appFiles = new AppFiles();
+            appFiles.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media._ID)));
+            appFiles.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE)));
+            appFiles.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)));
+            appFiles.setMimeType(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE)));
+            appFiles.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.SIZE)));
+            appFiles.setModifiedTimeStamp(cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DATE_MODIFIED)));
+            appFiles.setFileType(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
             filesList.add(appFiles);
-            System.out.println("VideoFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + "MEDIA_TYPE: " + appFiles.getMediaType() + " PATH: " + appFiles.getPath());
+            System.out.println("VideoFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + " MIME_TYPE: " + appFiles.getMimeType() + " FILE_TYPE: " + appFiles.getFileType() + " PATH: " + appFiles.getPath());
         }
 
 //        List<String> fileUrls = new ArrayList<String>();

@@ -140,7 +140,7 @@ public class MediaAdapter extends FileBaseAdapter<MediaViewHolder> {
 //        holder.checkBox.setChecked(mSparseBooleanArray.get(position));
 //        holder.checkBox.setOnCheckedChangeListener(mCheckedChangeListener);
 
-        int resourceId = getResourceDrawable(appFiles.getMediaType());
+        int resourceId = getResourceDrawable(appFiles.getFileType());
         Glide.with(context)
                 .load("file://" + appFiles.getPath())
                 .centerCrop()
@@ -153,7 +153,7 @@ public class MediaAdapter extends FileBaseAdapter<MediaViewHolder> {
 //        holder.checkBox().setTag(R.id.image_view, appFiles.getPath());
         holder.checkBox().setChecked(fileSelectionListener.isFileSelected(appFiles.getId()));
 //        holder.checkBox().setChecked(selectedFilesMap.containsKey(appFiles.getId()));
-        holder.playIcon().setVisibility(appFiles.getMediaType() == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE ? View.GONE : View.VISIBLE);
+        holder.playIcon().setVisibility(appFiles.getFileType() == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE ? View.GONE : View.VISIBLE);
 
     }
 

@@ -84,7 +84,8 @@ public class AudioFileFragment extends BaseSelectionFragment {
      */
     @Override
     protected List<AppFiles> getFiles() {
-        final String[] columns = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DATA };
+        final String[] columns = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.MIME_TYPE
+                                                , MediaStore.Audio.Media.SIZE, MediaStore.Audio.Media.DATE_MODIFIED};
         final String orderBy = MediaStore.Audio.Media.DATE_MODIFIED;
 
         Cursor cursor = getContext().getContentResolver().query(
@@ -98,25 +99,18 @@ public class AudioFileFragment extends BaseSelectionFragment {
         List<AppFiles> filesList = new ArrayList<AppFiles>();
 
         while(cursor.moveToNext()) {
-            AppFiles appFiles = new AppFiles(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)), MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO);
+            AppFiles appFiles = new AppFiles();
+            appFiles.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
+            appFiles.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+            appFiles.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
+            appFiles.setMimeType(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)));
+            appFiles.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)));
+            appFiles.setModifiedTimeStamp(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)));
+            appFiles.setFileType(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO);
             filesList.add(appFiles);
-            System.out.println("AudioFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + "MEDIA_TYPE: " + appFiles.getMediaType() + " PATH: " + appFiles.getPath());
+            System.out.println("AudioFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + " MIME_TYPE: " + appFiles.getMimeType() + " FILE_TYPE: " + appFiles.getFileType() + " PATH: " + appFiles.getPath());
         }
 
-
-//        List<String> fileUrls = new ArrayList<String>();
-//
-//        for (int i = 0; i < cursor.getCount(); i++) {
-//            cursor.moveToPosition(i);
-//            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-//            fileUrls.add(cursor.getString(dataColumnIndex));
-//
-//            System.out.println("Audio =====> Array path => " + fileUrls.get(i));
-//        }
-//
-//        return fileUrls;
         return filesList;
     }
 

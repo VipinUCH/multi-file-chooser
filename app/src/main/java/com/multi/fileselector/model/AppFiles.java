@@ -22,7 +22,19 @@ public class AppFiles implements Serializable {
     /**
      * The mime type
      */
-    private int mediaType;
+    private String mimeType;
+    /**
+     * The file type of the file
+     */
+    private int fileType;
+    /**
+     * The size of the file
+     */
+    private long size;
+    /**
+     * The file modified time
+     */
+    private long modifiedTimeStamp;
 //    private String mediaType;
 
     /**
@@ -36,14 +48,14 @@ public class AppFiles implements Serializable {
      * @param id the id of the file
      * @param title the title of the file
      * @param path the path of the file
-     * @param mediaType the media type of the file
+     * @param mimeType the mime type of the file
      */
-    public AppFiles(String id, String title, String path, int mediaType) {
+    public AppFiles(String id, String title, String path, String mimeType) {
 //    public AppFiles(String id, String title, String path, String mediaType) {
         this.id = id;
         this.title = title;
         this.path = path;
-        this.mediaType = mediaType;
+        this.mimeType = mimeType;
     }
 
     /**
@@ -98,15 +110,63 @@ public class AppFiles implements Serializable {
      * Return the mime type of the file
      * @return the mime type of the file
      */
-    public int getMediaType() {
-        return mediaType;
+    public String getMimeType() {
+        return mimeType;
     }
 
     /**
      * Sets the mime type of the file
-     * @param mediaType the mime type of the file
+     * @param mimeType the mime type of the file
      */
-    public void setMediaType(int mediaType) {
-        this.mediaType = mediaType;
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    /**
+     * Return the file type of the file
+     * @return the file type of the file
+     */
+    public int getFileType() {
+        return fileType;
+    }
+
+    /**
+     * Sets the file type of the file
+     * @param fileType the file type of the file
+     */
+    public void setFileType(int fileType) {
+        this.fileType = fileType;
+    }
+
+    /**
+     * Return the size of the file
+     * @return the size of the file
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     * Sets the size of the file
+     * @return the size of the file
+     */
+    public void setSize(long size) {
+        this.size = size;
+    }
+
+    /**
+     * Return the modified time stamp of the file
+     * @return the modified time stamp of the file
+     */
+    public long getModifiedTimeStamp() {
+        return modifiedTimeStamp;
+    }
+
+    /**
+     * Sets the modified time stamp of the file
+     * @return the modified time stamp of the file
+     */
+    public void setModifiedTimeStamp(long modifiedTimeStamp) {
+        this.modifiedTimeStamp = modifiedTimeStamp;
     }
 }

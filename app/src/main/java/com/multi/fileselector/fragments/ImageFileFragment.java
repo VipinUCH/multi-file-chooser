@@ -100,7 +100,8 @@ public class ImageFileFragment extends BaseSelectionFragment {
      */
     @Override
     protected List<AppFiles> getFiles() {
-        final String[] columns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Images.Media.DATA };
+        final String[] columns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Images.Media.DATA, MediaStore.Images.Media.MIME_TYPE
+                                                , MediaStore.Images.Media.SIZE, MediaStore.Images.Media.DATE_MODIFIED };
         final String orderBy = MediaStore.Images.Media.DATE_TAKEN;
 
         Cursor cursor = getContext().getContentResolver().query(
@@ -115,11 +116,16 @@ public class ImageFileFragment extends BaseSelectionFragment {
         List<AppFiles> filesList = new ArrayList<AppFiles>();
 
         while(cursor.moveToNext()) {
-            AppFiles appFiles = new AppFiles(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.TITLE)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA)), MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
+            AppFiles appFiles = new AppFiles();
+            appFiles.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
+            appFiles.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.TITLE)));
+            appFiles.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA)));
+            appFiles.setMimeType(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE)));
+            appFiles.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.SIZE)));
+            appFiles.setModifiedTimeStamp(cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)));
+            appFiles.setFileType(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
             filesList.add(appFiles);
-            System.out.println("ImageFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + "MEDIA_TYPE: " + appFiles.getMediaType() + " PATH: " + appFiles.getPath());
+            System.out.println("ImageFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + " MIME_TYPE: " + appFiles.getMimeType() + " FILE_TYPE: " + appFiles.getFileType() + " PATH: " + appFiles.getPath());
         }
 
 //        List<String> fileUrls = new ArrayList<String>();

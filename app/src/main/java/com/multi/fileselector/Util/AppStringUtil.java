@@ -1,5 +1,9 @@
 package com.multi.fileselector.Util;
 
+import android.text.TextUtils;
+
+import java.util.regex.Pattern;
+
 /**
  * Created by Vipin on 3/29/2017.
  * Copied from Apache StringUtils{containsIgnoreCase(final CharSequence str, final CharSequence searchStr), indexOfIgnoreCase(final CharSequence str, final CharSequence searchStr), indexOfIgnoreCase(final CharSequence str, final CharSequence searchStr, int startPos)}
@@ -190,5 +194,42 @@ public class AppStringUtil {
         }
 
         return true;
+    }
+
+    /**Copied from MimeTypeMap class to edit the reg ex
+     * Returns the file extension or an empty string iff there is no
+     * extension. This method is a convenience method for obtaining the
+     * extension of a url and has undefined results for other Strings.
+     * @param url
+     * @return The file extension of the given url.
+     */
+    public static String getFileExtensionFromUrl(String url) {
+        if (!TextUtils.isEmpty(url)) {
+            int fragment = url.lastIndexOf('#');
+            if (fragment > 0) {
+                url = url.substring(0, fragment);
+            }
+
+            int query = url.lastIndexOf('?');
+            if (query > 0) {
+                url = url.substring(0, query);
+            }
+
+            int filenamePos = url.lastIndexOf('/');
+            String filename =
+                    0 <= filenamePos ? url.substring(filenamePos + 1) : url;
+
+            // if the filename contains special characters, we don't
+            // consider it valid for our matching purposes:
+            if (!filename.isEmpty() &&
+                    Pattern.matches("[a-zA-Z_0-9 \\.\\-\\(\\)\\%]+", filename)) {
+                int dotPos = filename.lastIndexOf('.');
+                if (0 <= dotPos) {
+                    return filename.substring(dotPos + 1);
+                }
+            }
+        }
+
+        return "";
     }
 }

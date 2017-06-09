@@ -4,19 +4,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/button1"
-        tools:listitem="@layout/row_multi_photo_item" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:onClick="btnChoosePhotosClick"
-        android:text="Select Photos" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/button1"
+            tools:listitem="@layout/row_multi_photo_item" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <!--<Button-->
+        <!--android:id="@+id/button"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom"-->
+        <!--android:onClick="btnChoosePhotosClick"-->
+        <!--android:text="Select Photos" />-->
 
 </android.support.design.widget.CoordinatorLayout>

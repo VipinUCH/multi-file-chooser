@@ -92,8 +92,8 @@ public class DocumentFilesFragment extends BaseSelectionFragment {
      */
     @Override
     protected List<AppFiles> getFiles() {
-        final String[] columns = { MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.DATA, MediaStore.Files.FileColumns.MEDIA_TYPE
-                                                        , MediaStore.Files.FileColumns.MIME_TYPE};
+        final String[] columns = { MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.DATA
+                                                        , MediaStore.Files.FileColumns.MIME_TYPE, MediaStore.Files.FileColumns.SIZE, MediaStore.Files.FileColumns.DATE_MODIFIED};
         final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
 
 //        String selectionMimeType = MediaStore.Files.FileColumns.MIME_TYPE + " IN (?)";
@@ -114,12 +114,12 @@ public class DocumentFilesFragment extends BaseSelectionFragment {
         String[] selectionArgs = {TextUtils.join(", ", selectionArgsPdf)};
 
 //        String types = mimeTypePdf + ", " + mimeTypeDoc + ", " + mimeTypeDocx + ", " + mimeTypePpt + ", " + mimeTypePptx;
-        String types = "\"" + mimeTypePdf + "\", " + "\"" + mimeTypeDoc + "\", " +"\"" + mimeTypeDocx + "\", "
-                + "\"" + mimeTypeXml + "\", " + "\"" + mimeTypeXls + "\""
-                + "\"" + mimeTypeXlsx + "\", " + "\"" + mimeTypeTxt + "\""
+        String types = "\"" + mimeTypePdf + "\", " + "\"" + mimeTypeDoc + "\", " + "\"" + mimeTypeDocx + "\", "
+                + "\"" + mimeTypeXml + "\", " + "\"" + mimeTypeXls + "\", "
+                + "\"" + mimeTypeXlsx + "\", " + "\"" + mimeTypeTxt + "\", "
                 + "\"" + mimeTypePpt + "\", " + "\"" + mimeTypePptx + "\"";
 
-        String selectionMimeType = MediaStore.Files.FileColumns.MIME_TYPE + " IN (" + types + " )";
+        String selectionMimeType = MediaStore.Files.FileColumns.MIME_TYPE + " IN (" + types + " ) OR " + MediaStore.Files.FileColumns.DATA + " LIKE '%.xml'";
 //        String selectionMimeType = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
 //        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc");
 ////        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf");
@@ -136,13 +136,18 @@ public class DocumentFilesFragment extends BaseSelectionFragment {
         List<AppFiles> filesList = new ArrayList<AppFiles>();
 
         while(cursor.moveToNext()) {
-            AppFiles appFiles = new AppFiles(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE)),
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)), getFileType(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE))));
+            AppFiles appFiles = new AppFiles();
+            appFiles.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)));
+            appFiles.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE)));
+            appFiles.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)));
+            appFiles.setMimeType(cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE)));
+            appFiles.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE)));
+            appFiles.setModifiedTimeStamp(cursor.getLong(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED)));
+            appFiles.setFileType(getFileType(getActualExtension(appFiles)));
 //                    cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)), cursor.getInt(cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE)));
             filesList.add(appFiles);
 
-            System.out.println("DocumentFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + "MEDIA_TYPE: " + appFiles.getMediaType() + " PATH: " + appFiles.getPath());
+            System.out.println("DocumentFiles PROPERTIES =====> ID: " + appFiles.getId() + " TITLE: " + appFiles.getTitle() + " MIME_TYPE: " + appFiles.getMimeType() + " FILE_TYPE: " + appFiles.getFileType() + " PATH: " + appFiles.getPath());
         }
 
 //        for (int i = 0; i < cursor.getCount(); i++) {
@@ -156,24 +161,24 @@ public class DocumentFilesFragment extends BaseSelectionFragment {
         return filesList;
     }
 
-    private int getFileType(String mimeType) {
-        String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
-        if (AppStringUtil.containsIgnoreCase("pdf", extension)) {
-            return Constants.FileTypeConstants.PDF;
-        } else if (AppStringUtil.containsIgnoreCase("doc", extension) || AppStringUtil.containsIgnoreCase("docx", extension)) {
-            return Constants.FileTypeConstants.DOCUMENT;
-        } else if (AppStringUtil.containsIgnoreCase("xml", extension)) {
-            return Constants.FileTypeConstants.XML;
-        } else if (AppStringUtil.containsIgnoreCase("xls", extension) || AppStringUtil.containsIgnoreCase("xlsx", extension)) {
-            return Constants.FileTypeConstants.EXCEL;
-        } else if (AppStringUtil.containsIgnoreCase("txt", extension)) {
-            return Constants.FileTypeConstants.TXT;
-        } else if (AppStringUtil.containsIgnoreCase("ppt", extension) || AppStringUtil.containsIgnoreCase("pptx", extension)) {
-            return Constants.FileTypeConstants.PPT;
-        } else {
-            return Constants.FileTypeConstants.UNKNOWN;
-        }
-    }
+//    private int getFileType(String mimeType) {
+//        String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+//        if (AppStringUtil.containsIgnoreCase("pdf", extension)) {
+//            return Constants.FileTypeConstants.PDF;
+//        } else if (AppStringUtil.containsIgnoreCase("doc", extension) || AppStringUtil.containsIgnoreCase("docx", extension)) {
+//            return Constants.FileTypeConstants.DOCUMENT;
+//        } else if (AppStringUtil.containsIgnoreCase("xml", extension)) {
+//            return Constants.FileTypeConstants.XML;
+//        } else if (AppStringUtil.containsIgnoreCase("xls", extension) || AppStringUtil.containsIgnoreCase("xlsx", extension)) {
+//            return Constants.FileTypeConstants.EXCEL;
+//        } else if (AppStringUtil.containsIgnoreCase("txt", extension)) {
+//            return Constants.FileTypeConstants.TXT;
+//        } else if (AppStringUtil.containsIgnoreCase("ppt", extension) || AppStringUtil.containsIgnoreCase("pptx", extension)) {
+//            return Constants.FileTypeConstants.PPT;
+//        } else {
+//            return Constants.FileTypeConstants.UNKNOWN;
+//        }
+//    }
 
 //    private void showPermissionRationaleSnackBar() {
 //        Snackbar.make(recyclerView, getString(R.string.permission_rationale),

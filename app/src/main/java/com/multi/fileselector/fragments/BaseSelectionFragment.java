@@ -12,16 +12,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.multi.fileselector.Constants;
 import com.multi.fileselector.ItemOffsetDecoration;
 import com.multi.fileselector.R;
+import com.multi.fileselector.Util.AppStringUtil;
 import com.multi.fileselector.Util.FileSelectionListener;
 import com.multi.fileselector.adapter.FileAdapter;
 import com.multi.fileselector.adapter.FileBaseAdapter;
@@ -33,7 +38,7 @@ import java.util.List;
  * Created by Vipin on 6/6/2017.
  */
 
-public abstract class BaseSelectionFragment extends BaseFragment {
+public abstract class BaseSelectionFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
     /**
      * The request code for read external storage
      */
@@ -42,6 +47,10 @@ public abstract class BaseSelectionFragment extends BaseFragment {
      * The file selection listener
      */
     protected FileSelectionListener fileSelectionListener;
+    /**
+     * The swipe refresh layout
+     */
+    private SwipeRefreshLayout swipeRefreshLayout;
     /**
      * The recycler view
      */
@@ -70,7 +79,8 @@ public abstract class BaseSelectionFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initialize(view);
-        fileBaseAdapter = getAdapter();
+        register();
+//        fileBaseAdapter = getAdapter();
         checkPermissionAndLoadScreen();
     }
 
@@ -79,6 +89,8 @@ public abstract class BaseSelectionFragment extends BaseFragment {
      * @param view the view
      */
     private void initialize(View view) {
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(),4);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(layoutManager);
@@ -87,10 +99,18 @@ public abstract class BaseSelectionFragment extends BaseFragment {
     }
 
     /**
+     * Register the events
+     */
+    private void register() {
+        swipeRefreshLayout.setOnRefreshListener(this);
+    }
+
+    /**
      * The file base adapter
      * @param fileBaseAdapter the file base adapter
      */
     private void setAdapter(FileBaseAdapter fileBaseAdapter) {
+        this.fileBaseAdapter = fileBaseAdapter;
         recyclerView.setAdapter(fileBaseAdapter);
     }
 
@@ -99,7 +119,7 @@ public abstract class BaseSelectionFragment extends BaseFragment {
      */
     private void checkPermissionAndLoadScreen() {
         if(isPermissionGrantedFor(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            setAdapter(fileBaseAdapter);
+            setAdapter(getAdapter());
         } else {
             requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
         }
@@ -111,7 +131,7 @@ public abstract class BaseSelectionFragment extends BaseFragment {
      */
     private void loadScreenIfPermissionGranted(String permission) {
         if(isPermissionGrantedFor(permission)) {
-            setAdapter(fileBaseAdapter);
+            setAdapter(getAdapter());
         }
     }
 
@@ -181,6 +201,96 @@ public abstract class BaseSelectionFragment extends BaseFragment {
                 break;
         }
     }
+
+    @Override
+    public void onRefresh() {
+        setAdapter(getAdapter());
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * TODO - Check this function and keep the process simple by checking only the path, and do not save the mime type to the object if not needed for any other purpose.
+     * Returns the file extension based on the MIME_TYPE and file extension.
+     * Here we are checking based on MIME_TYPE first because it seems finding from MIME_TYPE is more accurate. Not know whether it is correct.
+     * And if the extension returned from mime type is zero, it is going with the file extension retrieved from path
+     * @param appFiles the app file object
+     * @return the extension of the file
+     */
+    protected String getActualExtension(AppFiles appFiles) {
+        String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(appFiles.getMimeType());
+        return extension == null ? AppStringUtil.getFileExtensionFromUrl(appFiles.getPath()) : extension;
+//        return extension == null ? MimeTypeMap.getFileExtensionFromUrl(appFiles.getPath()) : extension;
+    }
+
+    /**
+     * Returns the file type from mime type
+     * @param extension the extension of the file
+     * @return the file type
+     */
+    protected int getFileType(String extension) {
+        if ("pdf".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.PDF;
+        } else if ("doc".equalsIgnoreCase(extension) || "docx".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.DOCUMENT;
+        } else if ("xls".equalsIgnoreCase(extension) || "xlsx".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.EXCEL;
+        } else if ("ppt".equalsIgnoreCase(extension) || "pptx".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.PPT;
+        } else if ("txt".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.TXT;
+        } else if ("xml".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.XML;
+        } else if ("zip".equalsIgnoreCase(extension) || "zipx".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.ZIP;
+        } else if ("rar".equalsIgnoreCase(extension) || "rev".equalsIgnoreCase(extension)
+                || "r00".equalsIgnoreCase(extension) || "r01".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.RAR;
+        } else if ("gz".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.GZIP;
+        } else if ("apk".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.APK;
+        } else if ("exe".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.EXE;
+        } else if ("dcm".equalsIgnoreCase(extension)) {
+            return Constants.FileTypeConstants.DCM;
+        } else {
+            return Constants.FileTypeConstants.UNKNOWN;
+        }
+    }
+
+//    /**
+//     * Returns the file type from mime type
+//     * @param extension the extension of the file
+//     * @return the file type
+//     */
+//    protected int getFileType(String extension) {
+//        if (AppStringUtil.containsIgnoreCase("pdf", extension)) {
+//            return Constants.FileTypeConstants.PDF;
+//        } else if (AppStringUtil.containsIgnoreCase("doc", extension) || AppStringUtil.containsIgnoreCase("docx", extension)) {
+//            return Constants.FileTypeConstants.DOCUMENT;
+//        } else if (AppStringUtil.containsIgnoreCase("xls", extension) || AppStringUtil.containsIgnoreCase("xlsx", extension)) {
+//            return Constants.FileTypeConstants.EXCEL;
+//        } else if (AppStringUtil.containsIgnoreCase("ppt", extension) || AppStringUtil.containsIgnoreCase("pptx", extension)) {
+//            return Constants.FileTypeConstants.PPT;
+//        } else if (AppStringUtil.containsIgnoreCase("txt", extension)) {
+//            return Constants.FileTypeConstants.TXT;
+//        } else if (AppStringUtil.containsIgnoreCase("xml", extension)) {
+//            return Constants.FileTypeConstants.XML;
+//        } else if (AppStringUtil.containsIgnoreCase("zip", extension) || AppStringUtil.containsIgnoreCase("zipx", extension)) {
+//            return Constants.FileTypeConstants.ZIP;
+//        } else if (AppStringUtil.containsIgnoreCase("rar", extension) || AppStringUtil.containsIgnoreCase("rev", extension)
+//                || AppStringUtil.containsIgnoreCase("r00", extension) || AppStringUtil.containsIgnoreCase("r01", extension)) {
+//            return Constants.FileTypeConstants.RAR;
+//        } else if (AppStringUtil.containsIgnoreCase("gz", extension)) {
+//            return Constants.FileTypeConstants.GZIP;
+//        } else if (AppStringUtil.containsIgnoreCase("apk", extension)) {
+//            return Constants.FileTypeConstants.APK;
+//        } else if (AppStringUtil.containsIgnoreCase("exe", extension)) {
+//            return Constants.FileTypeConstants.EXE;
+//        } else {
+//            return Constants.FileTypeConstants.UNKNOWN;
+//        }
+//    }
 
     /**
      * Returns the corresponding adapter from the child classes
